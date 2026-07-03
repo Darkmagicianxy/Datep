@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Date Picker</title>
+    <title>Shareable Date Picker</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -25,7 +25,6 @@
             text-align: center;
             overflow-x: hidden;
         }
-        /* Custom Emoji Background layer */
         #emoji-bg {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -48,7 +47,7 @@
         .container {
             width: 100%;
             max-width: 400px;
-            background: rgba(0, 0, 0, 0.6); /* Slightly darker for better contrast over custom photos */
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             padding: 20px;
@@ -79,9 +78,7 @@
             font-size: 1rem;
             outline: none;
         }
-        input[type="file"] {
-            display: none; /* Hide the ugly native file button */
-        }
+        input[type="file"] { display: none; }
         .file-label {
             flex: 1;
             padding: 12px;
@@ -117,6 +114,17 @@
             border: none;
             padding: 12px 20px;
             border-radius: 25px;
+        }
+        .btn-share {
+            background-color: #ff3d00;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            width: 100%;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(255,61,0,0.3);
         }
         .btn-roll {
             background-color: #6200ea;
@@ -185,7 +193,7 @@
         </div>
 
         <div class="input-group">
-            <input type="text" id="emoji-input" placeholder="Type a single emoji (e.g. 😈)..." maxlength="4">
+            <input type="text" id="emoji-input" placeholder="Type background emoji (e.g. 😈)..." maxlength="4">
             <button type="button" class="btn-update" id="emoji-submit-btn">Apply</button>
         </div>
 
@@ -215,6 +223,8 @@
 
         <div id="current-list"></div>
 
+        <button type="button" class="btn-share" id="share-btn">🔗 Copy Share Link</button>
+
         <button type="button" class="btn-roll" id="roll-btn">Choose a Date</button>
     </div>
 
@@ -224,53 +234,104 @@
 
     <script>
         let locations = [];
+        let activeEmoji = "";
+        let activePhotoBase64 = "";
 
-        // Photo Uploader Handler
+        // URL ENCODER/DECODER LOGIC FOR SHARING
+        function getShareLink() {
+            const data = {
+                t: document.getElementById("main-title").innerText,
+                b: document.getElementById("roll-btn").innerText,
+                c: document.getElementById("items-to-select").value,
+                l: locations,
+                e: activeEmoji,
+                p: activePhotoBase64 // Note: Long photo strings may hit URL limits; text/emojis are safest
+            };
+            const encoded = btoa(encodeURIComponent(JSON.stringify(data)));
+            return window.location.origin + window.location.pathname + "?config=" + encoded;
+        }
+
+        function loadSharedConfig() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const configData = urlParams.get('config');
+            if (!configData) return;
+
+            try {
+                const decoded = JSON.parse(decodeURIComponent(atob(configData)));
+                if (decoded.t) document.getElementById("main-title").innerText = decoded.t;
+                if (decoded.b) document.getElementById("roll-btn").innerText = decoded.b;
+                if (decoded.c) document.getElementById("items-to-select").value = decoded.c;
+                if (decoded.l) locations = decoded.l;
+                if (decoded.e) {
+                    activeEmoji = decoded.e;
+                    applyEmojiPattern(activeEmoji);
+                }
+                if (decoded.p) {
+                    activePhotoBase64 = decoded.p;
+                    document.body.style.backgroundImage = `url('${activePhotoBase64}')`;
+                }
+                updateListUI();
+            } catch (err) {
+                console.error("Failed to parse configurations link", err);
+            }
+        }
+
+        function applyEmojiPattern(val) {
+            const bgLayer = document.getElementById("emoji-bg");
+            document.body.style.backgroundImage = "none";
+            activePhotoBase64 = "";
+            let pattern = "";
+            for (let i = 0; i < 600; i++) { pattern += val + " "; }
+            bgLayer.innerText = pattern;
+        }
+
+        // Photo Handler
         document.getElementById("image-uploader").addEventListener("change", function() {
             const file = this.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Reset emoji background if a photo is uploaded
                     document.getElementById("emoji-bg").innerText = "";
-                    // Set custom photo background
-                    document.body.style.backgroundImage = `url('${e.target.result}')`;
+                    activeEmoji = "";
+                    activePhotoBase64 = e.target.result;
+                    document.body.style.backgroundImage = `url('${activePhotoBase64}')`;
                 }
                 reader.readAsDataURL(file);
             }
         });
 
-        // Custom Emoji Pattern Generator Handler
+        // Emoji Pattern Handler
         document.getElementById("emoji-submit-btn").addEventListener("click", function() {
             const emojiInput = document.getElementById("emoji-input");
-            const bgLayer = document.getElementById("emoji-bg");
             const val = emojiInput.value.trim();
-            
             if (val !== "") {
-                // Remove photo background if an emoji is applied
-                document.body.style.backgroundImage = "none";
-                
-                let pattern = "";
-                for (let i = 0; i < 600; i++) {
-                    pattern += val + " ";
-                }
-                bgLayer.innerText = pattern;
+                activeEmoji = val;
+                applyEmojiPattern(val);
                 emojiInput.value = "";
             } else {
-                bgLayer.innerText = "";
+                activeEmoji = "";
+                document.getElementById("emoji-bg").innerText = "";
             }
+        });
+
+        // Share Button Click Hook
+        document.getElementById("share-btn").addEventListener("click", function() {
+            const link = getShareLink();
+            navigator.clipboard.writeText(link).then(() => {
+                alert("✨ Link copied to clipboard! Send it to your friend now!");
+            }).catch(() => {
+                // Fallback for older browsers
+                prompt("Copy this link to send to your friend:", link);
+            });
         });
 
         function updateListUI() {
             const listDiv = document.getElementById("current-list");
-            
             if (locations.length === 0) {
                 listDiv.innerHTML = "<em>Pool is empty. Add elements above!</em>";
                 return;
             }
-            
             listDiv.innerHTML = "<strong>Current Options pool:</strong><br>";
-            
             locations.forEach((loc, index) => {
                 const div = document.createElement("div");
                 div.className = "list-item";
@@ -290,27 +351,24 @@
 
         document.getElementById("title-submit-btn").addEventListener("click", function() {
             const titleInput = document.getElementById("title-input");
-            const mainTitle = document.getElementById("main-title");
             if (titleInput.value.trim() !== "") {
-                mainTitle.innerText = titleInput.value.trim();
+                document.getElementById("main-title").innerText = titleInput.value.trim();
                 titleInput.value = "";
             }
         });
 
         document.getElementById("button-text-btn").addEventListener("click", function() {
             const btnInput = document.getElementById("button-text-input");
-            const rollBtn = document.getElementById("roll-btn");
             if (btnInput.value.trim() !== "") {
-                rollBtn.innerText = btnInput.value.trim();
+                document.getElementById("roll-btn").innerText = btnInput.value.trim();
                 btnInput.value = "";
             }
         });
 
         document.getElementById("option-submit-btn").addEventListener("click", function() {
             const input = document.getElementById("new-option");
-            const value = input.value.trim();
-            if (value !== "") {
-                locations.push(value);
+            if (input.value.trim() !== "") {
+                locations.push(input.value.trim());
                 input.value = "";
                 updateListUI();
             }
@@ -318,13 +376,8 @@
 
         document.getElementById("roll-btn").addEventListener("click", function() {
             const resultDiv = document.getElementById("results");
-            const selectCountInput = document.getElementById("items-to-select");
             resultDiv.innerHTML = "";
-
-            let targetCount = parseInt(selectCountInput.value);
-            if (isNaN(targetCount) || targetCount < 1) {
-                targetCount = 1;
-            }
+            let targetCount = parseInt(document.getElementById("items-to-select").value) || 1;
 
             if (locations.length < 1) {
                 resultDiv.innerHTML = "<div class='date-item' style='border-left-color: #ff5252;'>Add options to your pool first!</div>";
@@ -333,10 +386,8 @@
 
             const selectedIndices = new Set();
             const maxToSelect = Math.min(targetCount, locations.length);
-
             while (selectedIndices.size < maxToSelect) {
-                const random = Math.floor(Math.random() * locations.length);
-                selectedIndices.add(random);
+                selectedIndices.add(Math.floor(Math.random() * locations.length));
             }
 
             selectedIndices.forEach(index => {
@@ -347,8 +398,9 @@
             });
         });
 
-        updateListUI();
+        // Initialize UI and parse shared setups if existing
+        loadSharedConfig();
+        if (locations.length === 0) updateListUI();
     </script>
-
 </body>
 </html>
