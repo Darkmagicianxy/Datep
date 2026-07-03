@@ -37,6 +37,13 @@
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
+            align-items: center;
+        }
+        label {
+            font-size: 0.9rem;
+            color: #ffdf00;
+            font-weight: bold;
+            white-space: nowrap;
         }
         input {
             flex: 1;
@@ -48,6 +55,10 @@
             font-size: 1rem;
             outline: none;
         }
+        input[type="number"] {
+            max-width: 80px;
+            text-align: center;
+        }
         button {
             cursor: pointer;
             font-weight: bold;
@@ -56,18 +67,18 @@
         button:active {
             transform: scale(0.95);
         }
+        .btn-update {
+            background-color: #00b0ff;
+            color: #121212;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 25px;
+        }
         .btn-add {
             background-color: #00e676;
             color: #121212;
             border: none;
-            padding: 0 20px;
-            border-radius: 25px;
-        }
-        .btn-title {
-            background-color: #00b0ff;
-            color: #121212;
-            border: none;
-            padding: 0 15px;
+            padding: 12px 20px;
             border-radius: 25px;
         }
         .btn-roll {
@@ -123,19 +134,29 @@
 </head>
 <body>
 
-    <h1 id="main-title">Our Custom Date Picker 🗓️</h1>
-    <p>Customize your picker and roll your agenda</p>
+    <h1 id="main-title">Custom Picker 🗓️</h1>
+    <p>Setup your parameters and generate results</p>
     
     <div class="container">
         <div class="input-group">
             <input type="text" id="title-input" placeholder="Change page title...">
-            <button type="button" class="btn-title" id="title-submit-btn">Update</button>
+            <button type="button" class="btn-update" id="title-submit-btn">Update</button>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="button-text-input" placeholder="Change action button text...">
+            <button type="button" class="btn-update" id="button-text-btn">Update</button>
+        </div>
+
+        <div class="input-group">
+            <label for="items-to-select">Results to select:</label>
+            <input type="number" id="items-to-select" value="2" min="1">
         </div>
 
         <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px;">
 
         <div class="input-group">
-            <input type="text" id="new-option" placeholder="Add custom option...">
+            <input type="text" id="new-option" placeholder="Add option text...">
             <button type="button" class="btn-add" id="option-submit-btn">Add</button>
         </div>
 
@@ -149,16 +170,17 @@
     </div>
 
     <script>
-        let locations = [
-            "Church",
-            "Bowling",
-            "Axe Throwing",
-            "Swap partners",
-            "Eat out"
-        ];
+        // CRITICAL UPDATE: Empty layout starting configuration matrix array
+        let locations = [];
 
         function updateListUI() {
             const listDiv = document.getElementById("current-list");
+            
+            if (locations.length === 0) {
+                listDiv.innerHTML = "<em>Pool is empty. Add elements above!</em>";
+                return;
+            }
+            
             listDiv.innerHTML = "<strong>Current Options pool:</strong><br>";
             
             locations.forEach((loc, index) => {
@@ -168,7 +190,6 @@
                 listDiv.appendChild(div);
             });
 
-            // Reattach delete listeners
             const deleteButtons = listDiv.querySelectorAll('.btn-delete');
             deleteButtons.forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -179,7 +200,7 @@
             });
         }
 
-        // Title update event listener
+        // Title text updates hook
         document.getElementById("title-submit-btn").addEventListener("click", function() {
             const titleInput = document.getElementById("title-input");
             const mainTitle = document.getElementById("main-title");
@@ -189,7 +210,17 @@
             }
         });
 
-        // Add option event listener
+        // NEW: Action button label updates hook
+        document.getElementById("button-text-btn").addEventListener("click", function() {
+            const btnInput = document.getElementById("button-text-input");
+            const rollBtn = document.getElementById("roll-btn");
+            if (btnInput.value.trim() !== "") {
+                rollBtn.innerText = btnInput.value.trim();
+                btnInput.value = "";
+            }
+        });
+
+        // Element append tracking array framework handler
         document.getElementById("option-submit-btn").addEventListener("click", function() {
             const input = document.getElementById("new-option");
             const value = input.value.trim();
@@ -200,19 +231,24 @@
             }
         });
 
-        // Roll generator event listener
+        // Main algorithm evaluation engine execution framework block
         document.getElementById("roll-btn").addEventListener("click", function() {
             const resultDiv = document.getElementById("results");
+            const selectCountInput = document.getElementById("items-to-select");
             resultDiv.innerHTML = "";
 
-            if (locations.length < 2) {
-                resultDiv.innerHTML = "<div class='date-item' style='border-left-color: #ff5252;'>Add at least 2 options!</div>";
+            let targetCount = parseInt(selectCountInput.value);
+            if (isNaN(targetCount) || targetCount < 1) {
+                targetCount = 1;
+            }
+
+            if (locations.length < 1) {
+                resultDiv.innerHTML = "<div class='date-item' style='border-left-color: #ff5252;'>Add options to your pool first!</div>";
                 return;
             }
 
             const selectedIndices = new Set();
-            const numberOfDatesSelected = 2;
-            const maxToSelect = Math.min(numberOfDatesSelected, locations.length);
+            const maxToSelect = Math.min(targetCount, locations.length);
 
             while (selectedIndices.size < maxToSelect) {
                 const random = Math.floor(Math.random() * locations.length);
@@ -227,7 +263,7 @@
             });
         });
 
-        // Run UI update on initial load
+        // Call visualization layout initial run structure 
         updateListUI();
     </script>
 
