@@ -36,7 +36,7 @@
         .input-group {
             display: flex;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         input {
             flex: 1;
@@ -53,6 +53,15 @@
             color: #121212;
             border: none;
             padding: 0 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-title {
+            background-color: #00b0ff;
+            color: #121212;
+            border: none;
+            padding: 0 15px;
             border-radius: 25px;
             font-weight: bold;
             cursor: pointer;
@@ -119,10 +128,17 @@
 </head>
 <body>
 
-    <h1>Our Custom Date Picker 🗓️</h1>
-    <p>Manage your pool and roll your agenda</p>
+    <h1 id="main-title">Our Custom Date Picker 🗓️</h1>
+    <p>Customize your picker and roll your agenda</p>
     
     <div class="container">
+        <div class="input-group">
+            <input type="text" id="title-input" placeholder="Change page title...">
+            <button class="btn-title" onclick="changeTitle()">Update</button>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px;">
+
         <div class="input-group">
             <input type="text" id="new-option" placeholder="Add custom option...">
             <button class="btn-add" onclick="addOption()">Add</button>
@@ -134,74 +150,4 @@
     </div>
 
     <div class="container" style="background: transparent; box-shadow: none; padding: 0;">
-        <div id="results"></div>
-    </div>
-
-    <script>
-        let locations = [
-            "Church",
-            "Bowling",
-            "Axe Throwing",
-            "Swap partners",
-            "Eat out"
-        ];
-
-        function updateListUI() {
-            const listDiv = document.getElementById("current-list");
-            listDiv.innerHTML = "<strong>Current Options pool:</strong><br>";
-            
-            locations.forEach((loc, index) => {
-                const div = document.createElement("div");
-                div.className = "list-item";
-                div.innerHTML = `<span>${loc}</span> <button class="btn-delete" onclick="deleteOption(${index})">✕</button>`;
-                listDiv.appendChild(div);
-            });
-        }
-
-        function addOption() {
-            const input = document.getElementById("new-option");
-            const value = input.value.trim();
-            
-            if (value !== "") {
-                locations.push(value);
-                input.value = "";
-                updateListUI();
-            }
-        }
-
-        function deleteOption(index) {
-            locations.splice(index, 1);
-            updateListUI();
-        }
-
-        function generateDates() {
-            const resultDiv = document.getElementById("results");
-            resultDiv.innerHTML = "";
-
-            if (locations.length < 2) {
-                resultDiv.innerHTML = "<div class='date-item' style='border-left-color: #ff5252;'>Add at least 2 options!</div>";
-                return;
-            }
-
-            const selectedIndices = new Set();
-            const numberOfDatesSelected = 2;
-            const maxToSelect = Math.min(numberOfDatesSelected, locations.length);
-
-            while (selectedIndices.size < maxToSelect) {
-                const random = Math.floor(Math.random() * locations.length);
-                selectedIndices.add(random);
-            }
-
-            selectedIndices.forEach(index => {
-                const p = document.createElement("div");
-                p.className = "date-item";
-                p.innerText = locations[index];
-                resultDiv.appendChild(p);
-            });
-        }
-
-        updateListUI();
-    </script>
-
-</body>
-</html>
+        <div id="results
