@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1e1e2f; /* Fixed: Raw background-color property so color picker works */
+            background-color: #1e1e2f; /* Default background color */
             position: relative;
             color: #ffffff;
             display: flex;
@@ -28,7 +28,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            opacity: 0.09; /* Slightly boosted opacity so you can see it better on mobile */
+            opacity: 0.12; /* Slightly higher visibility for mobile screens */
             font-size: 2rem;
             line-height: 3.5rem;
             pointer-events: none;
@@ -52,7 +52,7 @@
             max-width: 400px;
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px); /* Safari support */
+            -webkit-backdrop-filter: blur(10px);
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
@@ -70,6 +70,8 @@
             color: #ffdf00;
             font-weight: bold;
             white-space: nowrap;
+            width: 130px;
+            text-align: left;
         }
         input, select {
             flex: 1;
@@ -80,14 +82,16 @@
             color: white;
             font-size: 1rem;
             outline: none;
+            box-sizing: border-box;
         }
-        input[type="color"] {
-            padding: 0;
-            height: 45px;
-            max-width: 60px;
-            border-radius: 10px;
-            cursor: pointer;
-            border: 2px solid #6200ea;
+        /* Force styling for mobile select dropdowns */
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></path></svg>");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
         }
         input[type="number"] {
             max-width: 80px;
@@ -176,15 +180,23 @@
     
     <div class="container">
         <div class="input-group">
-            <label for="color-picker">🎨 Theme Color:</label>
-            <input type="color" id="color-picker" value="#1e1e2f">
+            <label for="color-dropdown">🎨 Theme Color:</label>
+            <select id="color-dropdown">
+                <option value="#1e1e2f">Space Blue (Default)</option>
+                <option value="#2c003e">Midnight Purple</option>
+                <option value="#4a0e17">Vampire Red</option>
+                <option value="#0b3c1b">Emerald Green</option>
+                <option value="#111111">Pitch Black</option>
+                <option value="#ff8c00">Hot Orange</option>
+            </select>
         </div>
 
         <div class="input-group">
-            <label for="emoji-select">✨ Background Pattern:</label>
+            <label for="emoji-select">✨ Background:</label>
             <select id="emoji-select">
                 <option value="">None</option>
-                <option value="😈">😈 Devil</option> <option value="⚡">⚡ Lightning</option>
+                <option value="😈">😈 Devil</option>
+                <option value="⚡">⚡ Lightning</option>
                 <option value="🌸">🌸 Flowers</option>
                 <option value="🍿">🍿 Popcorn</option>
                 <option value="🎬">🎬 Movies</option>
@@ -207,7 +219,7 @@
         </div>
 
         <div class="input-group">
-            <label for="items-to-select">Results to select:</label>
+            <label for="items-to-select" style="width: auto; flex: 1;">Results to select:</label>
             <input type="number" id="items-to-select" value="2" min="1">
         </div>
 
@@ -230,8 +242,8 @@
     <script>
         let locations = [];
 
-        // Color Picker Event Listener Hook - Updated to force style application
-        document.getElementById("color-picker").addEventListener("input", function() {
+        // Fixed Text Dropdown Hook for Theme Color Switcher
+        document.getElementById("color-dropdown").addEventListener("change", function() {
             document.body.style.backgroundColor = this.value;
         });
 
@@ -312,4 +324,34 @@
             const selectCountInput = document.getElementById("items-to-select");
             resultDiv.innerHTML = "";
 
-            let targetCount = parseInt(select
+            let targetCount = parseInt(selectCountInput.value);
+            if (isNaN(targetCount) || targetCount < 1) {
+                targetCount = 1;
+            }
+
+            if (locations.length < 1) {
+                resultDiv.innerHTML = "<div class='date-item' style='border-left-color: #ff5252;'>Add options to your pool first!</div>";
+                return;
+            }
+
+            const selectedIndices = new Set();
+            const maxToSelect = Math.min(targetCount, locations.length);
+
+            while (selectedIndices.size < maxToSelect) {
+                const random = Math.floor(Math.random() * locations.length);
+                selectedIndices.add(random);
+            }
+
+            selectedIndices.forEach(index => {
+                const p = document.createElement("div");
+                p.className = "date-item";
+                p.innerText = locations[index];
+                resultDiv.appendChild(p);
+            });
+        });
+
+        updateListUI();
+    </script>
+
+</body>
+</html>
