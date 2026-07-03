@@ -48,14 +48,20 @@
             font-size: 1rem;
             outline: none;
         }
+        button {
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s;
+        }
+        button:active {
+            transform: scale(0.95);
+        }
         .btn-add {
             background-color: #00e676;
             color: #121212;
             border: none;
             padding: 0 20px;
             border-radius: 25px;
-            font-weight: bold;
-            cursor: pointer;
         }
         .btn-title {
             background-color: #00b0ff;
@@ -63,8 +69,6 @@
             border: none;
             padding: 0 15px;
             border-radius: 25px;
-            font-weight: bold;
-            cursor: pointer;
         }
         .btn-roll {
             background-color: #6200ea;
@@ -72,15 +76,10 @@
             border: none;
             padding: 15px 40px;
             font-size: 1.2rem;
-            font-weight: bold;
             border-radius: 30px;
-            cursor: pointer;
             box-shadow: 0 4px 15px rgba(98, 0, 234, 0.4);
             width: 100%;
             margin-bottom: 20px;
-        }
-        button:active {
-            transform: scale(0.98);
         }
         #current-list {
             text-align: left;
@@ -96,15 +95,16 @@
         .list-item {
             display: flex;
             justify-content: space-between;
-            padding: 4px 0;
+            padding: 6px 0;
             border-bottom: 1px solid rgba(255,255,255,0.05);
+            align-items: center;
         }
         .btn-delete {
             color: #ff5252;
-            cursor: pointer;
             background: none;
             border: none;
-            font-weight: bold;
+            font-size: 1.1rem;
+            padding: 0 5px;
         }
         #results {
             margin-top: 20px;
@@ -118,11 +118,6 @@
             font-size: 1.3rem;
             font-weight: bold;
             border-left: 5px solid #ffdf00;
-            animation: fadeIn 0.3s ease-in;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -134,20 +129,107 @@
     <div class="container">
         <div class="input-group">
             <input type="text" id="title-input" placeholder="Change page title...">
-            <button class="btn-title" onclick="changeTitle()">Update</button>
+            <button type="button" class="btn-title" id="title-submit-btn">Update</button>
         </div>
 
         <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px;">
 
         <div class="input-group">
             <input type="text" id="new-option" placeholder="Add custom option...">
-            <button class="btn-add" onclick="addOption()">Add</button>
+            <button type="button" class="btn-add" id="option-submit-btn">Add</button>
         </div>
 
         <div id="current-list"></div>
 
-        <button class="btn-roll" onclick="generateDates()">Choose a Date</button>
+        <button type="button" class="btn-roll" id="roll-btn">Choose a Date</button>
     </div>
 
     <div class="container" style="background: transparent; box-shadow: none; padding: 0;">
-        <div id="results
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let locations = [
+            "Church",
+            "Bowling",
+            "Axe Throwing",
+            "Swap partners",
+            "Eat out"
+        ];
+
+        function updateListUI() {
+            const listDiv = document.getElementById("current-list");
+            listDiv.innerHTML = "<strong>Current Options pool:</strong><br>";
+            
+            locations.forEach((loc, index) => {
+                const div = document.createElement("div");
+                div.className = "list-item";
+                div.innerHTML = `<span>${loc}</span> <button type="button" class="btn-delete" data-index="${index}">✕</button>`;
+                listDiv.appendChild(div);
+            });
+
+            // Reattach delete listeners
+            const deleteButtons = listDiv.querySelectorAll('.btn-delete');
+            deleteButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idx = parseInt(this.getAttribute('data-index'));
+                    locations.splice(idx, 1);
+                    updateListUI();
+                });
+            });
+        }
+
+        // Title update event listener
+        document.getElementById("title-submit-btn").addEventListener("click", function() {
+            const titleInput = document.getElementById("title-input");
+            const mainTitle = document.getElementById("main-title");
+            if (titleInput.value.trim() !== "") {
+                mainTitle.innerText = titleInput.value.trim();
+                titleInput.value = "";
+            }
+        });
+
+        // Add option event listener
+        document.getElementById("option-submit-btn").addEventListener("click", function() {
+            const input = document.getElementById("new-option");
+            const value = input.value.trim();
+            if (value !== "") {
+                locations.push(value);
+                input.value = "";
+                updateListUI();
+            }
+        });
+
+        // Roll generator event listener
+        document.getElementById("roll-btn").addEventListener("click", function() {
+            const resultDiv = document.getElementById("results");
+            resultDiv.innerHTML = "";
+
+            if (locations.length < 2) {
+                resultDiv.innerHTML = "<div class='date-item' style='border-left-color: #ff5252;'>Add at least 2 options!</div>";
+                return;
+            }
+
+            const selectedIndices = new Set();
+            const numberOfDatesSelected = 2;
+            const maxToSelect = Math.min(numberOfDatesSelected, locations.length);
+
+            while (selectedIndices.size < maxToSelect) {
+                const random = Math.floor(Math.random() * locations.length);
+                selectedIndices.add(random);
+            }
+
+            selectedIndices.forEach(index => {
+                const p = document.createElement("div");
+                p.className = "date-item";
+                p.innerText = locations[index];
+                resultDiv.appendChild(p);
+            });
+        });
+
+        // Run UI update on initial load
+        updateListUI();
+    </script>
+
+</body>
+</html>
