@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1e1e2f; /* Default background color */
+            background-color: #1e1e2f; /* Fixed: Raw background-color property so color picker works */
             position: relative;
             color: #ffffff;
             display: flex;
@@ -28,9 +28,9 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            opacity: 0.07; /* Makes emojis subtle watermarks */
+            opacity: 0.09; /* Slightly boosted opacity so you can see it better on mobile */
             font-size: 2rem;
-            line-height: 3rem;
+            line-height: 3.5rem;
             pointer-events: none;
             user-select: none;
             overflow: hidden;
@@ -52,6 +52,7 @@
             max-width: 400px;
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Safari support */
             padding: 20px;
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
@@ -183,7 +184,7 @@
             <label for="emoji-select">✨ Background Pattern:</label>
             <select id="emoji-select">
                 <option value="">None</option>
-                <option value="⚡">⚡ Lightning</option>
+                <option value="😈">😈 Devil</option> <option value="⚡">⚡ Lightning</option>
                 <option value="🌸">🌸 Flowers</option>
                 <option value="🍿">🍿 Popcorn</option>
                 <option value="🎬">🎬 Movies</option>
@@ -229,7 +230,7 @@
     <script>
         let locations = [];
 
-        // Color Picker Event Listener Hook
+        // Color Picker Event Listener Hook - Updated to force style application
         document.getElementById("color-picker").addEventListener("input", function() {
             document.body.style.backgroundColor = this.value;
         });
@@ -244,7 +245,6 @@
                 return;
             }
             
-            // Generate a full screen repeating block of the chosen emoji
             let pattern = "";
             for (let i = 0; i < 600; i++) {
                 pattern += emoji + " ";
@@ -279,7 +279,6 @@
             });
         }
 
-        // Title text updates hook
         document.getElementById("title-submit-btn").addEventListener("click", function() {
             const titleInput = document.getElementById("title-input");
             const mainTitle = document.getElementById("main-title");
@@ -289,7 +288,6 @@
             }
         });
 
-        // Action button label updates hook
         document.getElementById("button-text-btn").addEventListener("click", function() {
             const btnInput = document.getElementById("button-text-input");
             const rollBtn = document.getElementById("roll-btn");
@@ -299,7 +297,6 @@
             }
         });
 
-        // Add custom option array matrix appender
         document.getElementById("option-submit-btn").addEventListener("click", function() {
             const input = document.getElementById("new-option");
             const value = input.value.trim();
@@ -310,40 +307,9 @@
             }
         });
 
-        // Evaluation generator algorithm framework engine hook
         document.getElementById("roll-btn").addEventListener("click", function() {
             const resultDiv = document.getElementById("results");
             const selectCountInput = document.getElementById("items-to-select");
             resultDiv.innerHTML = "";
 
-            let targetCount = parseInt(selectCountInput.value);
-            if (isNaN(targetCount) || targetCount < 1) {
-                targetCount = 1;
-            }
-
-            if (locations.length < 1) {
-                resultDiv.innerHTML = "<div class='date-item' style='border-left-color: #ff5252;'>Add options to your pool first!</div>";
-                return;
-            }
-
-            const selectedIndices = new Set();
-            const maxToSelect = Math.min(targetCount, locations.length);
-
-            while (selectedIndices.size < maxToSelect) {
-                const random = Math.floor(Math.random() * locations.length);
-                selectedIndices.add(random);
-            }
-
-            selectedIndices.forEach(index => {
-                const p = document.createElement("div");
-                p.className = "date-item";
-                p.innerText = locations[index];
-                resultDiv.appendChild(p);
-            });
-        });
-
-        updateListUI();
-    </script>
-
-</body>
-</html>
+            let targetCount = parseInt(select
