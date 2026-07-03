@@ -6,169 +6,39 @@
     <title>Date Picker</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1e1e2f; /* Default background color */
-            position: relative;
+            font-family: sans-serif;
+            background-color: #1e1e2f;
             color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
             text-align: center;
-            overflow-x: hidden;
+            padding: 20px;
         }
-        /* Custom Emoji Background layer */
         #emoji-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            opacity: 0.12; /* Slightly higher visibility for mobile screens */
-            font-size: 2rem;
-            line-height: 3.5rem;
-            pointer-events: none;
-            user-select: none;
-            overflow: hidden;
-            white-space: normal;
-            z-index: -1;
-            word-break: break-all;
-        }
-        h1 {
-            color: #ffdf00;
-            margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(255, 223, 0, 0.3);
-            z-index: 1;
-        }
-        p {
-            z-index: 1;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            opacity: 0.15; font-size: 2rem; line-height: 3.5rem;
+            pointer-events: none; z-index: -1; overflow: hidden;
+            word-break: break-all; white-space: normal;
         }
         .container {
-            width: 100%;
-            max-width: 400px;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            margin-bottom: 20px;
-            z-index: 1;
+            width: 100%; max-width: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px; border-radius: 15px;
+            margin: 20px auto; box-sizing: border-box;
         }
         .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-            align-items: center;
+            display: flex; gap: 10px; margin-bottom: 15px; align-items: center;
         }
-        label {
-            font-size: 0.9rem;
-            color: #ffdf00;
-            font-weight: bold;
-            white-space: nowrap;
-            width: 130px;
-            text-align: left;
-        }
-        input, select {
-            flex: 1;
-            padding: 12px;
-            border-radius: 25px;
-            border: 1px solid #6200ea;
-            background: #1e1e2f;
-            color: white;
-            font-size: 1rem;
-            outline: none;
-            box-sizing: border-box;
-        }
-        /* Force styling for mobile select dropdowns */
-        select {
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></path></svg>");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 30px;
-        }
-        input[type="number"] {
-            max-width: 80px;
-            text-align: center;
-        }
-        button {
-            cursor: pointer;
-            font-weight: bold;
-            transition: transform 0.1s;
-        }
-        button:active {
-            transform: scale(0.95);
-        }
-        .btn-update {
-            background-color: #00b0ff;
-            color: #121212;
-            border: none;
-            padding: 12px 15px;
-            border-radius: 25px;
-        }
-        .btn-add {
-            background-color: #00e676;
-            color: #121212;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
-        }
-        .btn-roll {
-            background-color: #6200ea;
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            border-radius: 30px;
-            box-shadow: 0 4px 15px rgba(98, 0, 234, 0.4);
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        #current-list {
-            text-align: left;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 10px;
-            max-height: 150px;
-            overflow-y: auto;
-            font-size: 0.9rem;
-            color: #bbb;
-            margin-bottom: 20px;
-        }
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            align-items: center;
-        }
-        .btn-delete {
-            color: #ff5252;
-            background: none;
-            border: none;
-            font-size: 1.1rem;
-            padding: 0 5px;
-        }
-        #results {
-            margin-top: 20px;
-            width: 100%;
-        }
-        .date-item {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(5px);
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            font-size: 1.3rem;
-            font-weight: bold;
-            border-left: 5px solid #ffdf00;
-        }
+        label { font-size: 0.9rem; width: 110px; text-align: left; }
+        input, select { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #6200ea; }
+        input[type="number"] { max-width: 70px; text-align: center; }
+        button { padding: 10px 20px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; }
+        .btn-update { background-color: #00b0ff; }
+        .btn-add { background-color: #00e676; }
+        .btn-roll { background-color: #6200ea; color: white; width: 100%; font-size: 1.2rem; padding: 15px; }
+        #current-list { text-align: left; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; margin-bottom: 15px; }
+        .list-item { display: flex; justify-content: space-between; padding: 5px 0; }
+        .btn-delete { color: #ff5252; background: none; }
+        .date-item { background: rgba(255,255,255,0.2); padding: 15px; margin: 10px 0; border-radius: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -176,54 +46,47 @@
     <div id="emoji-bg"></div>
 
     <h1 id="main-title">Custom Picker 🗓️</h1>
-    <p>Setup your parameters and generate results</p>
     
     <div class="container">
         <div class="input-group">
-            <label for="color-dropdown">🎨 Theme Color:</label>
+            <label>🎨 Theme:</label>
             <select id="color-dropdown">
-                <option value="#1e1e2f">Space Blue (Default)</option>
+                <option value="#1e1e2f">Space Blue</option>
                 <option value="#2c003e">Midnight Purple</option>
                 <option value="#4a0e17">Vampire Red</option>
                 <option value="#0b3c1b">Emerald Green</option>
                 <option value="#111111">Pitch Black</option>
-                <option value="#ff8c00">Hot Orange</option>
             </select>
         </div>
 
         <div class="input-group">
-            <label for="emoji-select">✨ Background:</label>
+            <label>✨ Background:</label>
             <select id="emoji-select">
                 <option value="">None</option>
                 <option value="😈">😈 Devil</option>
                 <option value="⚡">⚡ Lightning</option>
-                <option value="🌸">🌸 Flowers</option>
-                <option value="🍿">🍿 Popcorn</option>
-                <option value="🎬">🎬 Movies</option>
                 <option value="❤️">❤️ Hearts</option>
-                <option value="🎲">🎲 Dice</option>
-                <option value="✨">✨ Sparkles</option>
             </select>
         </div>
 
-        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px;">
+        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;">
 
         <div class="input-group">
-            <input type="text" id="title-input" placeholder="Change page title...">
+            <input type="text" id="title-input" placeholder="Change title...">
             <button type="button" class="btn-update" id="title-submit-btn">Update</button>
         </div>
 
         <div class="input-group">
-            <input type="text" id="button-text-input" placeholder="Change action button text...">
+            <input type="text" id="button-text-input" placeholder="Change button text...">
             <button type="button" class="btn-update" id="button-text-btn">Update</button>
         </div>
 
         <div class="input-group">
-            <label for="items-to-select" style="width: auto; flex: 1;">Results to select:</label>
+            <label style="flex:1;">Results to select:</label>
             <input type="number" id="items-to-select" value="2" min="1">
         </div>
 
-        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px;">
+        <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin:15px 0;">
 
         <div class="input-group">
             <input type="text" id="new-option" placeholder="Add option text...">
@@ -235,45 +98,32 @@
         <button type="button" class="btn-roll" id="roll-btn">Choose a Date</button>
     </div>
 
-    <div class="container" style="background: transparent; box-shadow: none; padding: 0;">
+    <div class="container" style="background:transparent; box-shadow:none;">
         <div id="results"></div>
     </div>
 
     <script>
         let locations = [];
 
-        // Fixed Text Dropdown Hook for Theme Color Switcher
         document.getElementById("color-dropdown").addEventListener("change", function() {
             document.body.style.backgroundColor = this.value;
         });
 
-        // Emoji Selector Background Generator Hook
         document.getElementById("emoji-select").addEventListener("change", function() {
             const bgLayer = document.getElementById("emoji-bg");
-            const emoji = this.value;
-            
-            if (!emoji) {
-                bgLayer.innerText = "";
-                return;
-            }
-            
+            if (!this.value) { bgLayer.innerText = ""; return; }
             let pattern = "";
-            for (let i = 0; i < 600; i++) {
-                pattern += emoji + " ";
-            }
+            for (let i = 0; i < 600; i++) { pattern += this.value + " "; }
             bgLayer.innerText = pattern;
         });
 
         function updateListUI() {
             const listDiv = document.getElementById("current-list");
-            
             if (locations.length === 0) {
                 listDiv.innerHTML = "<em>Pool is empty. Add elements above!</em>";
                 return;
             }
-            
             listDiv.innerHTML = "<strong>Current Options pool:</strong><br>";
-            
             locations.forEach((loc, index) => {
                 const div = document.createElement("div");
                 div.className = "list-item";
@@ -293,65 +143,14 @@
 
         document.getElementById("title-submit-btn").addEventListener("click", function() {
             const titleInput = document.getElementById("title-input");
-            const mainTitle = document.getElementById("main-title");
             if (titleInput.value.trim() !== "") {
-                mainTitle.innerText = titleInput.value.trim();
+                document.getElementById("main-title").innerText = titleInput.value.trim();
                 titleInput.value = "";
             }
         });
 
         document.getElementById("button-text-btn").addEventListener("click", function() {
             const btnInput = document.getElementById("button-text-input");
-            const rollBtn = document.getElementById("roll-btn");
             if (btnInput.value.trim() !== "") {
-                rollBtn.innerText = btnInput.value.trim();
+                document.getElementById("roll-btn").innerText = btnInput.value.trim();
                 btnInput.value = "";
-            }
-        });
-
-        document.getElementById("option-submit-btn").addEventListener("click", function() {
-            const input = document.getElementById("new-option");
-            const value = input.value.trim();
-            if (value !== "") {
-                locations.push(value);
-                input.value = "";
-                updateListUI();
-            }
-        });
-
-        document.getElementById("roll-btn").addEventListener("click", function() {
-            const resultDiv = document.getElementById("results");
-            const selectCountInput = document.getElementById("items-to-select");
-            resultDiv.innerHTML = "";
-
-            let targetCount = parseInt(selectCountInput.value);
-            if (isNaN(targetCount) || targetCount < 1) {
-                targetCount = 1;
-            }
-
-            if (locations.length < 1) {
-                resultDiv.innerHTML = "<div class='date-item' style='border-left-color: #ff5252;'>Add options to your pool first!</div>";
-                return;
-            }
-
-            const selectedIndices = new Set();
-            const maxToSelect = Math.min(targetCount, locations.length);
-
-            while (selectedIndices.size < maxToSelect) {
-                const random = Math.floor(Math.random() * locations.length);
-                selectedIndices.add(random);
-            }
-
-            selectedIndices.forEach(index => {
-                const p = document.createElement("div");
-                p.className = "date-item";
-                p.innerText = locations[index];
-                resultDiv.appendChild(p);
-            });
-        });
-
-        updateListUI();
-    </script>
-
-</body>
-</html>
