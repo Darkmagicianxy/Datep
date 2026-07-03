@@ -8,6 +8,11 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #1e1e2f;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            position: relative;
             color: #ffffff;
             display: flex;
             flex-direction: column;
@@ -18,7 +23,23 @@
             padding: 20px;
             box-sizing: border-box;
             text-align: center;
+            overflow-x: hidden;
         }
+        /* Custom Emoji Background layer */
+        #emoji-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            opacity: 0.15;
+            font-size: 2rem;
+            line-height: 3.5rem;
+            pointer-events: none;
+            user-select: none;
+            overflow: hidden;
+            white-space: normal;
+            z-index: -1;
+            word-break: break-all;
+        }
+        h1, p { z-index: 1; }
         h1 {
             color: #ffdf00;
             margin-bottom: 5px;
@@ -27,11 +48,14 @@
         .container {
             width: 100%;
             max-width: 400px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.6); /* Slightly darker for better contrast over custom photos */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
             margin-bottom: 20px;
+            z-index: 1;
         }
         .input-group {
             display: flex;
@@ -45,7 +69,7 @@
             font-weight: bold;
             white-space: nowrap;
         }
-        input {
+        input, select {
             flex: 1;
             padding: 12px;
             border-radius: 25px;
@@ -54,6 +78,21 @@
             color: white;
             font-size: 1rem;
             outline: none;
+        }
+        input[type="file"] {
+            display: none; /* Hide the ugly native file button */
+        }
+        .file-label {
+            flex: 1;
+            padding: 12px;
+            border-radius: 25px;
+            border: 1px dashed #00b0ff;
+            background: rgba(0, 176, 255, 0.1);
+            color: #00b0ff;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
         }
         input[type="number"] {
             max-width: 80px;
@@ -64,9 +103,7 @@
             font-weight: bold;
             transition: transform 0.1s;
         }
-        button:active {
-            transform: scale(0.95);
-        }
+        button:active { transform: scale(0.95); }
         .btn-update {
             background-color: #00b0ff;
             color: #121212;
@@ -94,7 +131,7 @@
         }
         #current-list {
             text-align: left;
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.4);
             padding: 10px;
             border-radius: 10px;
             max-height: 150px;
@@ -122,7 +159,8 @@
             width: 100%;
         }
         .date-item {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
             padding: 15px;
             margin: 10px 0;
             border-radius: 8px;
@@ -134,10 +172,25 @@
 </head>
 <body>
 
+    <div id="emoji-bg"></div>
+
     <h1 id="main-title">Custom Picker 🗓️</h1>
     <p>Setup your parameters and generate results</p>
     
     <div class="container">
+        <div class="input-group">
+            <label>📸 Photo:</label>
+            <label for="image-uploader" class="file-label">Choose Image...</label>
+            <input type="file" id="image-uploader" accept="image/*">
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="emoji-input" placeholder="Type a single emoji (e.g. 😈)..." maxlength="4">
+            <button type="button" class="btn-update" id="emoji-submit-btn">Apply</button>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 15px;">
+
         <div class="input-group">
             <input type="text" id="title-input" placeholder="Change page title...">
             <button type="button" class="btn-update" id="title-submit-btn">Update</button>
@@ -172,6 +225,42 @@
     <script>
         let locations = [];
 
+        // Photo Uploader Handler
+        document.getElementById("image-uploader").addEventListener("change", function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    // Reset emoji background if a photo is uploaded
+                    document.getElementById("emoji-bg").innerText = "";
+                    // Set custom photo background
+                    document.body.style.backgroundImage = `url('${e.target.result}')`;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Custom Emoji Pattern Generator Handler
+        document.getElementById("emoji-submit-btn").addEventListener("click", function() {
+            const emojiInput = document.getElementById("emoji-input");
+            const bgLayer = document.getElementById("emoji-bg");
+            const val = emojiInput.value.trim();
+            
+            if (val !== "") {
+                // Remove photo background if an emoji is applied
+                document.body.style.backgroundImage = "none";
+                
+                let pattern = "";
+                for (let i = 0; i < 600; i++) {
+                    pattern += val + " ";
+                }
+                bgLayer.innerText = pattern;
+                emojiInput.value = "";
+            } else {
+                bgLayer.innerText = "";
+            }
+        });
+
         function updateListUI() {
             const listDiv = document.getElementById("current-list");
             
@@ -199,7 +288,6 @@
             });
         }
 
-        // Title text updates hook
         document.getElementById("title-submit-btn").addEventListener("click", function() {
             const titleInput = document.getElementById("title-input");
             const mainTitle = document.getElementById("main-title");
@@ -209,7 +297,6 @@
             }
         });
 
-        // Action button label updates hook
         document.getElementById("button-text-btn").addEventListener("click", function() {
             const btnInput = document.getElementById("button-text-input");
             const rollBtn = document.getElementById("roll-btn");
@@ -219,7 +306,6 @@
             }
         });
 
-        // Element append tracking array framework handler
         document.getElementById("option-submit-btn").addEventListener("click", function() {
             const input = document.getElementById("new-option");
             const value = input.value.trim();
@@ -230,7 +316,6 @@
             }
         });
 
-        // Main algorithm evaluation engine execution framework block
         document.getElementById("roll-btn").addEventListener("click", function() {
             const resultDiv = document.getElementById("results");
             const selectCountInput = document.getElementById("items-to-select");
@@ -262,7 +347,6 @@
             });
         });
 
-        // Call visualization layout initial run structure 
         updateListUI();
     </script>
 
