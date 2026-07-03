@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Picker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e1e2f, #2a2a40);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        h1 {
+            color: #ffdf00;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 223, 0, 0.3);
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 12px;
+            border-radius: 25px;
+            border: 1px solid #6200ea;
+            background: #1e1e2f;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+        }
+        .btn-add {
+            background-color: #00e676;
+            color: #121212;
+            border: none;
+            padding: 0 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-roll {
+            background-color: #6200ea;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(98, 0, 234, 0.4);
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        #current-list {
+            text-align: left;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            color: #bbb;
+            margin-bottom: 20px;
+        }
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .btn-delete {
+            color: #ff5252;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-weight: bold;
+        }
+        #results {
+            margin-top: 20px;
+            width: 100%;
+        }
+        .date-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-left: 5px solid #ffdf00;
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Our Custom Date Picker 🗓️</h1>
+    <p>Manage your pool and roll your agenda</p>
+    
+    <div class="container">
+        <div class="input-group">
+            <input type="text" id="new-option" placeholder="Add custom option...">
+            <button class="btn-add" onclick="addOption()">Add</button>
+        </div>
+
+        <div id="current-list"></div>
+
+        <button class="btn-roll" onclick="generateDates()">Choose a Date</button>
+    </div>
+
+    <div class="container" style="background: transparent; box-shadow: none; padding: 0;">
+        <div id="results"></div>
+    </div>
+
+    <script>
+        let locations = [
+            "Church",
+            "Bowling",
+            "Axe Throwing",
+            "Swap partners",
+            "Eat out"
+        ];
+
+        function updateListUI() {
+            const listDiv = document.getElementById("current-list");
+            listDiv.innerHTML = "<strong>Current Options pool:</strong><br>";
+            
+            locations.forEach((loc, index) => {
+                const div = document.createElement("div");
+                div.className = "list-item";
+                div.innerHTML = `<span>${loc}</span> <button class="btn-delete" onclick="deleteOption(${index})">✕</button>`;
+                listDiv.appendChild(div);
+            });
+        }
+
+        function addOption() {
+            const input = document.getElementById("new-option");
+            const value = input.value.trim();
+            
+            if (value !== "") {
+                locations.push(value);
+                input.value = "";
+                updateListUI();
+            }
+        }
+
+        function deleteOption(index) {
+            locations.splice(index, 1);
+            updateListUI();
+        }
+
+        function generateDates() {
+            const resultDiv = document.getElementById("results");
+            resultDiv.innerHTML = "";
+
+            if (locations.length < 2) {
+                resultDiv.innerHTML = "<div class='date-item' style='border-left-color: #ff5252;'>Add at least 2 options!</div>";
+                return;
+            }
+
+            const selectedIndices = new Set();
+            const numberOfDatesSelected = 2;
+            const maxToSelect = Math.min(numberOfDatesSelected, locations.length);
+
+            while (selectedIndices.size < maxToSelect) {
+                const random = Math.floor(Math.random() * locations.length);
+                selectedIndices.add(random);
+            }
+
+            selectedIndices.forEach(index => {
+                const p = document.createElement("div");
+                p.className = "date-item";
+                p.innerText = locations[index];
+                resultDiv.appendChild(p);
+            });
+        }
+
+        updateListUI();
+    </script>
+
+</body>
+</html>
